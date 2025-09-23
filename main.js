@@ -1,5 +1,5 @@
 javascript:(()=>{
-  const N = "🛰 Endpoint Scanner NX",
+  const N = "🛰 JS Endpoints",
         B = document,
         O = location,
         U = O.origin;

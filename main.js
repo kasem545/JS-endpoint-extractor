@@ -1,162 +1,172 @@
-javascript:(function(){
-  var scripts=document.getElementsByTagName("script"),
-      regex=/(?<=(\"|\%27|\`))\/[a-zA-Z0-9_?&=\/\-\#\.]*(?=(\"|\'|\%60))/g,
-      results=new Set,timeoutDelay=3000;
+javascript:(function () {
+    var s = document.getElementsByTagName("script"),
+        r = /(?<=(\"|\%27|\`))\/[a-zA-Z0-9_?&=\/\-\#\.]*(?=(\"|\'|\%60))/g,
+        res = new Set,
+        t = 3000;
 
-  for(var i=0;i<scripts.length;i++){
-    var src=scripts[i].src;
-    if(src)fetch(src).then(r=>r.text()).then(content=>{
-      let matches=content.matchAll(regex);
-      for(let m of matches)results.add(m[0]);
-    }).catch(err=>console.error("Error fetching script:",src,err))
-  }
+    for (var i = 0; i < s.length; i++) {
+        var u = s[i].src;
+        if (u) {
+            fetch(u)
+                .then(x => x.text())
+                .then(c => {
+                    for (let m of c.matchAll(r)) res.add(m[0]);
+                });
+        }
+    }
 
-  var pageContent=document.documentElement.outerHTML,
-      matches=pageContent.matchAll(regex);
-  for(const m of matches)results.add(m[0]);
+    for (const m of document.documentElement.outerHTML.matchAll(r)) {
+        res.add(m[0]);
+    }
 
-  function showResults(){
-    const modal=document.createElement("div");
-    modal.style.position="fixed";
-    modal.style.top="10%";
-    modal.style.left="50%";
-    modal.style.transform="translate(-50%, -10%)";
-    modal.style.background="#333";
-    modal.style.color="#fff";
-    modal.style.border="1px solid #444";
-    modal.style.boxShadow="0 4px 8px rgba(0,0,0,0.2)";
-    modal.style.zIndex=9999;
-    modal.style.padding="20px";
-    modal.style.maxHeight="80%";
-    modal.style.overflowY="auto";
-    modal.style.fontFamily="Arial,sans-serif";
-    modal.style.fontSize="14px";
-    modal.style.borderRadius="8px";
-    modal.style.width="60%";
-    modal.style.textAlign="left";
-    modal.style.direction="ltr";
+    function show() {
+        const m = document.createElement("div");
+        m.style = `
+            position:fixed;
+            top:10%;
+            left:50%;
+            transform:translate(-50%,-10%);
+            background:#333;
+            color:#fff;
+            border:1px solid #444;
+            box-shadow:0 4px 8px rgba(0,0,0,.2);
+            z-index:9999;
+            padding:20px;
+            max-height:80%;
+            overflow-y:auto;
+            font-family:Arial,sans-serif;
+            font-size:14px;
+            border-radius:8px;
+            width:60%;
+            text-align:left;
+            direction:ltr;
+        `;
 
-    const header=document.createElement("div");
-    header.style.display="flex";
-    header.style.justifyContent="space-between";
-    header.style.alignItems="center";
-    header.style.marginBottom="10px";
+        const h = document.createElement("div");
+        h.style = "display:flex;justify-content:space-between;align-items:center;margin-bottom:10px";
 
-    const title=document.createElement("h3");
-    title.innerText="Extracted URLs/Paths";
-    title.style.margin="0";
-    title.style.color="#ffa500";
+        const ti = document.createElement("h3");
+        ti.innerText = "Extracted URLs/Paths";
+        ti.style = "margin:0;color:#ffa500";
 
-    const closeButtonTop=document.createElement("span");
-    closeButtonTop.innerText="✖";
-    closeButtonTop.style.cursor="pointer";
-    closeButtonTop.style.color="#fff";
-    closeButtonTop.style.fontSize="18px";
-    closeButtonTop.style.fontWeight="bold";
-    closeButtonTop.style.marginLeft="10px";
-    closeButtonTop.onclick=()=>document.body.removeChild(modal);
+        const cbtn = document.createElement("span");
+        cbtn.innerText = "✖";
+        cbtn.style = "cursor:pointer;color:#fff;font-size:18px;font-weight:bold;margin-left:10px";
+        cbtn.onclick = () => document.body.removeChild(m);
 
-    header.appendChild(title);
-    header.appendChild(closeButtonTop);
+        h.appendChild(ti);
+        h.appendChild(cbtn);
 
-    const searchBar=document.createElement("input");
-    searchBar.type="text";
-    searchBar.placeholder="Search...";
-    searchBar.style.width="100%";
-    searchBar.style.padding="10px";
-    searchBar.style.marginBottom="10px";
-    searchBar.style.fontSize="14px";
-    searchBar.style.border="1px solid #555";
-    searchBar.style.borderRadius="4px";
-    searchBar.style.outline="none";
-    searchBar.style.boxSizing="border-box";
-    searchBar.style.background="#222";
-    searchBar.style.color="#fff";
+        const sb = document.createElement("input");
+        sb.type = "text";
+        sb.placeholder = "Search...";
+        sb.style = `
+            width:100%;
+            padding:10px;
+            margin-bottom:10px;
+            font-size:14px;
+            border:1px solid #555;
+            border-radius:4px;
+            outline:none;
+            box-sizing:border-box;
+            background:#222;
+            color:#fff;
+        `;
 
-    const list=document.createElement("ul");
-    list.style.listStyleType="none";
-    list.style.padding="0";
+        const l = document.createElement("ul");
+        l.style = "list-style:none;padding:0";
 
-    results.forEach(item=>{
-      const listItem=document.createElement("li");
-      listItem.style.marginBottom="5px";
-      listItem.style.wordBreak="break-word";
-      listItem.style.textAlign="left";
-      listItem.style.display="flex";
-      listItem.style.justifyContent="space-between";
-      listItem.style.alignItems="center";
+        res.forEach(p => {
+            const li = document.createElement("li");
+            li.style = `
+                margin-bottom:5px;
+                word-break:break-word;
+                text-align:left;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:4px;
+                border-radius:4px;
+                transition:background .2s;
+            `;
 
-      const link=document.createElement("a");
-      link.textContent=item;
-      link.href=location.origin+item;
-      link.target="_blank";
-      link.style.color="#4da6ff";
-      link.style.textDecoration="none";
-      link.style.flex="1";
+            li.onmouseover = () => li.style.background = "#444";
+            li.onmouseout = () => li.style.background = "";
 
-      const statusSpan=document.createElement("span");
-      statusSpan.innerText="Loading...";
-      statusSpan.style.marginLeft="10px";
-      statusSpan.style.fontWeight="bold";
-      statusSpan.style.color="#ccc";
+            const a = document.createElement("a");
+            a.textContent = p;
+            a.href = location.origin + p;
+            a.target = "_blank";
+            a.title = a.href;
+            a.style = "color:#4da6ff;text-decoration:none;flex:1";
 
-      fetch(link.href,{method:"HEAD"})
-        .then(r=>{
-          statusSpan.innerText=r.status;
-          statusSpan.style.color=(r.status>=200 && r.status<400)?"#4caf50":"#ff4c4c";
-        })
-        .catch(()=>{statusSpan.innerText="ERR";statusSpan.style.color="#ff4c4c"});
+            const st = document.createElement("span");
+            st.innerText = "...";
+            st.style = "margin-left:10px;font-weight:bold;color:#ccc";
 
-      listItem.appendChild(link);
-      listItem.appendChild(statusSpan);
-      list.appendChild(listItem);
-    });
+            fetch(a.href, { method: "HEAD" })
+                .then(r => {
+                    st.innerText = r.status;
+                    st.style.color = (r.status >= 200 && r.status < 400) ? "#4caf50" : "#ff4c4c";
+                })
+                .catch(() => {
+                    st.innerText = "ERR";
+                    st.style.color = "#ff4c4c";
+                });
 
-    searchBar.addEventListener("input",()=>{
-      const filter=searchBar.value.toLowerCase(),
-            items=list.getElementsByTagName("li");
-      for(let i=0;i<items.length;i++){
-        const txt=items[i].innerText||items[i].textContent;
-        items[i].style.display=txt.toLowerCase().includes(filter)?"":"none";
-      }
-    });
+            li.appendChild(a);
+            li.appendChild(st);
+            l.appendChild(li);
+        });
 
-    const downloadButton=document.createElement("button");
-    downloadButton.innerText="Download Results";
-    downloadButton.style.marginTop="10px";
-    downloadButton.style.padding="5px 10px";
-    downloadButton.style.background="#4caf50";
-    downloadButton.style.color="#fff";
-    downloadButton.style.border="none";
-    downloadButton.style.cursor="pointer";
-    downloadButton.style.borderRadius="4px";
-    downloadButton.onclick=()=>{
-      const blob=new Blob([Array.from(results).join("\n")],{type:"text/plain"});
-      const link=document.createElement("a");
-      link.href=URL.createObjectURL(blob);
-      link.download="extracted_paths.txt";
-      link.click();
-    };
+        sb.oninput = () => {
+            const f = sb.value.toLowerCase();
+            for (let i of l.getElementsByTagName("li")) {
+                i.style.display = (i.innerText || i.textContent).toLowerCase().includes(f) ? "" : "none";
+            }
+        };
 
-    const closeButtonBottom=document.createElement("button");
-    closeButtonBottom.innerText="Close";
-    closeButtonBottom.style.marginTop="10px";
-    closeButtonBottom.style.marginLeft="10px";
-    closeButtonBottom.style.padding="5px 10px";
-    closeButtonBottom.style.background="#ffa500";
-    closeButtonBottom.style.color="#000";
-    closeButtonBottom.style.border="none";
-    closeButtonBottom.style.cursor="pointer";
-    closeButtonBottom.style.borderRadius="4px";
-    closeButtonBottom.onclick=()=>document.body.removeChild(modal);
+        const dl = document.createElement("button");
+        dl.innerText = "Download Results";
+        dl.style = `
+            margin-top:10px;
+            padding:5px 10px;
+            background:#4caf50;
+            color:#fff;
+            border:none;
+            cursor:pointer;
+            border-radius:4px;
+        `;
+        dl.onclick = () => {
+            const b = new Blob([Array.from(res).join('\n')], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(b);
+            a.download = "extracted_paths.txt";
+            a.click();
+        };
 
-    modal.appendChild(header);
-    modal.appendChild(searchBar);
-    modal.appendChild(list);
-    modal.appendChild(downloadButton);
-    modal.appendChild(closeButtonBottom);
-    document.body.appendChild(modal);
-  }
+        const cb = document.createElement("button");
+        cb.innerText = "Close";
+        cb.style = `
+            margin-top:10px;
+            margin-left:10px;
+            padding:5px 10px;
+            background:#ffa500;
+            color:#000;
+            border:none;
+            cursor:pointer;
+            border-radius:4px;
+        `;
+        cb.onclick = () => document.body.removeChild(m);
 
-  setTimeout(showResults,timeoutDelay);
+        m.appendChild(h);
+        m.appendChild(sb);
+        m.appendChild(l);
+        m.appendChild(dl);
+        m.appendChild(cb);
+
+        document.body.appendChild(m);
+    }
+
+    setTimeout(show, t);
 })();
